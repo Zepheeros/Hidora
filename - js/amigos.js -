@@ -1,0 +1,32 @@
+import { appState } from "./appState.js"; // ✅ Accede al estado global de la app
+import { setupGlobalEventListeners } from "./eventListeners.js"; // ✅ Accede a los eventos globales
+
+export function initAmigos() {
+    console.log("✅ Módulo Amigos de Hidora inicializado correctamente.");
+
+    const readMoreBtn = document.querySelector(".read-more-amigos");
+    const amigosModulo = document.querySelector("#amigos-modulo");
+
+    if (!readMoreBtn || !amigosModulo) {
+        console.warn("⚠️ No se encontró el botón o el módulo de amigos.");
+        return;
+    }
+
+    readMoreBtn.addEventListener("click", () => {
+        console.log("✅ Click en 'Seguir leyendo' registrado.");
+        const isVisible = amigosModulo.classList.contains("visible");
+
+        amigosModulo.classList.toggle("visible", !isVisible);
+        amigosModulo.classList.toggle("hidden", isVisible);
+        readMoreBtn.textContent = isVisible ? "Seguir leyendo" : "Ocultar sección";
+
+        console.log(`📖 Módulo Amigos ahora está ${isVisible ? "oculto" : "visible"}.`);
+    });
+
+    console.log("🔎 Estado del botón:", readMoreBtn);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ Documento completamente cargado.");
+    initAmigos(); // ✅ Llama a `initAmigos()` directamente en `DOMContentLoaded`
+});
