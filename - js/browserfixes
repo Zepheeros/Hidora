@@ -1,0 +1,75 @@
+/**
+ * Correcciones específicas para navegadores
+ * @module browserFixes
+ */
+
+import { appState } from './appState.js';
+
+export const browserFixes = {
+    state: {
+        isFirefox: false,
+        isEdge: false,
+        isSafari: false
+    },
+
+    detectBrowser() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        this.state.isFirefox = userAgent.includes('firefox');
+        this.state.isEdge = userAgent.includes('edg'); // Para Microsoft Edge
+        this.state.isSafari = userAgent.includes('safari') && !userAgent.includes('chrome');
+
+        console.debug(`[Debug] Navegador detectado: ${this.getBrowserName()}`);
+    },
+
+    getBrowserName() {
+        if (this.state.isFirefox) return 'Firefox';
+        if (this.state.isEdge) return 'Edge';
+        if (this.state.isSafari) return 'Safari';
+        return 'Otro/Desconocido';
+    },
+
+    applyFixes() {
+        if (this.state.isFirefox) {
+            console.debug('🛠 Aplicando correcciones para Firefox...');
+            this.fixEventPropagation();
+        }
+        if (this.state.isSafari) {
+            console.debug('🛠 Aplicando correcciones para Safari...');
+            this.fixSafariViewportIssue();
+        }
+        // Puedes agregar aquí más correcciones para otros navegadores si es necesario
+    },
+
+    /**
+     * Corrige problemas de propagación de eventos en Firefox usando el modo captura.
+     */
+    fixEventPropagation() {
+        document.addEventListener('click', (event) => {
+            const menu = document.querySelector('#mobile-nav');
+            const toggle = document.querySelector('#menu-toggle');
+            if (!menu || !toggle) return;
+
+            // Uso de contains es confiable pero forzamos la evaluación en modo captura
+            const isClickInsideMenu = menu.contains(event.target) || toggle.contains(event.target);
+            if (!isClickInsideMenu && appState.menu.isOpen) {
+                console.log('🔹 Clic fuera del menú en Firefox, cerrando...');
+                appState.methods.setMenuState(false);
+            }
+        }, true); // El tercer parámetro 'true' activa el modo captura
+    },
+
+    /**
+     * Realiza un ajuste simple para solucionar posibles problemas de viewport en Safari.
+     */
+    fixSafariViewportIssue() {
+        // Ejemplo: Ajustar una variable CSS personalizada para Safari
+        document.documentElement.style.setProperty('--safari-viewport-fix', '1px');
+        console.debug('🔹 Ajuste de viewport aplicado para Safari.');
+    }
+};
+
+// Ejecutar la detección y aplicación de fixes cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    browserFixes.detectBrowser();
+    browserFixes.applyFixes();
+});
